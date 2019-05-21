@@ -1,0 +1,48 @@
+# ----------------Loading graph parameters-----------------------------
+dir_nm: "yeast" # Options: toy_network, toy_network_old, humap, humap2
+sep: " " # Options: " ", "\t"
+netf_nm: "/dip.txt" 
+comf_nm: "/mips.txt" 
+comf_test_nm: "/TAP-MS.txt" # Make sure no extra rows are present
+comf_nm_all: "/all_complexes_yeast.txt"
+out_comp_nm: "/results/res" 
+use_full: 0
+classifier_file: "TPOT/tpot_results/yeast/dip/mips_train/edg_fix_old/tpot_classifiers_mips_edgfix_new.txt"
+scale_factor: 1.1  # Number of times negatives should be higher than positives 
+split_flag: 0
+mode: non_gen # gen means only feature extraction, non_gen is all 
+# -------------------Training parameters--------------------------------
+feats: 6
+
+model_type: "tpot" # Options: tpot, NN
+train_feat_mat: "TPOT/data/yeast/dip/res_train_dat_yeast_edg_fix_mips.csv"
+test_feat_mat: "TPOT/data/yeast/dip/res_test_dat_yeast_edg_fix_tap.csv"
+model_name: "tpot_select" #Options: FF_1hidden, log_reg, SVM, rand_forest, extra_trees, estimator_SVM
+# humap with separted train and test sets - tpot result - extra_trees
+best_classifier: "LogisticRegression" # Only for tpot_select - ExtraTreesClassifier
+ 
+# --------------------Search parameters ------------------------------
+seed_mode: "cliques" # Options:all_nodes_known_comp, all_nodes, n_nodes,cliques
+num_comp: 10 # Options: 10, 7778, 1500 - only for n_nodes mode
+
+run_mode: "serial" # Options: serial, parallel
+max_size: 10 # max size of complex in sampling - will get overwritten by actual max size from data if starting from the start 
+
+search_method: "isa" # isa, metropolis, search_top_neigs, search_max_neig 
+    
+# All methods except max_neig    
+thres_neig: 30 # Maximum number of neighbors sampled for checking 
+perc: 0.5 # Percentage of neighbors to check for adding new node 
+explore_prob: 0.01 # use 0.1 for top_neigs 
+# Metropolis algorithm params
+prob_metropolis: 0.1
+
+# ISA params
+T0: 0.88
+alpha: 1.8
+
+over_t: 0.7 # Overlap threshold = 0.7/0.9
+
+# Evaluation parameters
+eval_p: 0.5 # threshold in metric for evaluation of complexes 
+

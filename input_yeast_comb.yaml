@@ -1,0 +1,48 @@
+# ----------------Loading graph parameters-----------------------------
+dir_nm: "yeast" # Options: toy_network, toy_network_old, humap, humap2
+sep: " " # Options: " ", "\t"
+netf_nm: "/CombinedYeast.txt" 
+comf_nm: "/res_train_complexes_wo2s.txt" 
+comf_test_nm: "/res_test_complexes_wo2s.txt" # Make sure no extra rows are present
+comf_nm_all: "/all_complexes_yeast.txt"
+out_comp_nm: "/results/res" 
+use_full: 1
+classifier_file: "tpot_classifiers_comb_full.txt"
+scale_factor: 1.1  # Number of times negatives should be higher than positives 
+split_flag: 0
+mode: gen # gen means only feature extraction, non_gen is all 
+# -------------------Training parameters--------------------------------
+feats: 6
+
+model_type: "tpot" # Options: tpot, NN
+train_feat_mat: "TPOT/res_train_dat_comb_full.csv"
+test_feat_mat: "TPOT/res_test_dat_comb_full.csv"
+model_name: "tpot_select" #Options: FF_1hidden, log_reg, SVM, rand_forest, extra_trees, estimator_SVM
+# humap with separted train and test sets - tpot result - extra_trees
+best_classifier: "GradientBoostingClassifier" # Only for tpot_select - ExtraTreesClassifier
+ 
+# --------------------Search parameters ------------------------------
+seed_mode: "all_nodes_known_comp" # Options:all_nodes_known_comp, all_nodes, n_nodes
+num_comp: 10 # Options: 10, 7778, 1500 - only for n_nodes mode
+
+run_mode: "serial" # Options: serial, parallel
+max_size: 10 # max size of complex in sampling - will get overwritten by actual max size from data if starting from the start 
+
+search_method: "search_max_neig" # isa, metropolis, search_top_neigs, search_max_neig 
+    
+# All methods except max_neig    
+thres_neig: 30 # Maximum number of neighbors sampled for checking 
+perc: 0.9 # Percentage of neighbors to check for adding new node 
+explore_prob: 0.01 # use 0.1 for top_neigs 
+# Metropolis algorithm params
+prob_metropolis: 0.01
+
+# ISA params
+T0: 0.88
+alpha: 1.8
+
+over_t: 0.99 # Overlap threshold = 0.7/0.9
+
+# Evaluation parameters
+eval_p: 0.5 # threshold in metric for evaluation of complexes 
+

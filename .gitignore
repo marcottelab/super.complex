@@ -1,0 +1,10 @@
+*.pyc
+humap2/
+humap/
+*.xlsx
+example*
+test.py
+TPOT/tpot_temp*
+clusterEPs*
+convert_ids*
+TPOT/old_tmp/
