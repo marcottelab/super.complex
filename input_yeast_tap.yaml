@@ -6,33 +6,36 @@ comf_nm: "/TAP-MS.txt"
 comf_test_nm: "/mips.txt" # Make sure no extra rows are present
 comf_nm_all: "/all_complexes_yeast.txt"
 out_comp_nm: "/results/res" 
-use_full: 0
-classifier_file: "TPOT/tpot_results/yeast/dip/tap_train/edg_fix_old/tpot_classifiers_tap_edgfix1.txt"
+use_full: 1
 scale_factor: 1.1  # Number of times negatives should be higher than positives 
 split_flag: 0
 mode: non_gen # gen means only feature extraction, non_gen is all 
 # -------------------Training parameters--------------------------------
 feats: 6
 
+classifier_file: "TPOT/tpot_results/yeast/dip/tap_train/edg_fix_old/tpot_classifiers_tap_edgfix_full.txt"
 model_type: "tpot" # Options: tpot, NN
 train_feat_mat: "TPOT/data/yeast/dip/res_test_dat_yeast_edg_fix_tap.csv"
 test_feat_mat: "TPOT/data/yeast/dip/res_train_dat_yeast_edg_fix_mips.csv"
 model_name: "tpot_select" #Options: FF_1hidden, log_reg, SVM, rand_forest, extra_trees, estimator_SVM
 # humap with separted train and test sets - tpot result - extra_trees
-best_classifier: "ExtraTreesClassifier" # Only for tpot_select - ExtraTreesClassifier
+# best_classifier: "ExtraTreesClassifier" # Only for tpot_select - ExtraTreesClassifier
  
+model_dir: "/results_conn_tap/res"
 # --------------------Search parameters ------------------------------
-seed_mode: "cliques" # Options:all_nodes_known_comp, all_nodes, n_nodes,cliques
-num_comp: 10 # Options: 10, 7778, 1500 - only for n_nodes mode
+seed_mode: "all_nodes" # Options:all_nodes_known_comp, all_nodes, n_nodes,cliques
+num_comp: 250 # Options: 10, 7778, 1500 - only for n_nodes mode
 
-run_mode: "serial" # Options: serial, parallel
-max_size: 10 # max size of complex in sampling - will get overwritten by actual max size from data if starting from the start 
+run_mode: "parallel" # Options: serial, parallel
+max_size_thres: 50
 
-search_method: "search_top_neigs" # isa, metropolis, search_top_neigs, search_max_neig 
+search_method: "metropolis" # isa, metropolis, search_top_neigs, search_max_neig 
     
 # All methods except max_neig    
+use_all_neigs: 1
 thres_neig: 30 # Maximum number of neighbors sampled for checking 
-perc: 0.5 # Percentage of neighbors to check for adding new node 
+min_thres_neig_sorted: 100 # Threshold above which only a percentage of neigs are considered as per sorted weights
+perc: 0.9 # Percentage of neighbors to check for adding new node
 explore_prob: 0.01 # use 0.1 for top_neigs 
 # Metropolis algorithm params
 prob_metropolis: 0.1
@@ -41,7 +44,7 @@ prob_metropolis: 0.1
 T0: 0.88
 alpha: 1.8
 
-over_t: 0.7 # Overlap threshold = 0.7/0.9
+over_t: 0.9 # Overlap threshold = 0.7/0.9
 
 # Evaluation parameters
 eval_p: 0.5 # threshold in metric for evaluation of complexes 

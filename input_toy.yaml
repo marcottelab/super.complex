@@ -7,31 +7,38 @@ comf_test_nm: "/test_complexes.txt" # Make sure no extra rows are present
 comf_nm_all: "/all_complexes.txt"
 out_comp_nm: "/results/res" 
 split_flag: 0
+fact: 0.7
+perc_transfer: 0.2
 use_full: 1
 scale_factor: 1.1  # Number of times negatives should be higher than positives 
-mode: non_gen # gen means only feature extraction, non_gen is all 
+mode: non_gen # gen means only feature extraction, non_gen is all
 # -------------------Training parameters--------------------------------
 feats: 6
 
-model_type: "NN" # Options: tpot, NN
+model_type: "tpot" # Options: tpot, NN
 train_feat_mat: "toy_network/res_train_dat.csv"
 test_feat_mat: "toy_network/res_train_dat.csv"
 model_name: "SVM" #Options: FF_1hidden, log_reg, SVM, rand_forest, extra_trees
 # humap with separted train and test sets - tpot result - extra_trees
  
+model_dir: "/results/res"
 # --------------------Search parameters ------------------------------
 seed_mode: "all_nodes" # Options:all_nodes_known_comp, all_nodes, n_nodes, cliques
 num_comp: 40 # Options: 10, 7778, 1500 -  only for n_nodes mode
 
 run_mode: "parallel" # Options: serial, parallel
-max_size: 10 # max size of complex in sampling - will get overwritten by actual max size from data if starting from the start 
+max_size_thres: 50 
 
-search_method: "isa" # isa, metropolis, search_top_neigs, search_max_neig 
+search_method: "search_top_neigs" # isa, metropolis, search_top_neigs, search_max_neig
     
-# All methods except max_neig    
-thres_neig: 30 # Maximum number of neighbors sampled for checking 
-perc: 0.1 # Percentage of neighbors to check for adding new node 
-explore_prob: 0.5 # use 0.1 for top_neigs 
+# All methods except search_max_neig    
+# No. of neighbors considered params
+use_all_neigs: 1
+thres_neig: 30 # Maximum number of neighbors sampled for checking
+min_thres_neig_sorted: 30 # Threshold above which only a percentage of neigs are considered as per sorted weights
+perc: 0.7 # Percentage of neighbors to check for adding new node
+
+explore_prob: 0.01 # use 0.1 for top_neigs
 # Metropolis algorithm params
 prob_metropolis: 0.1
 

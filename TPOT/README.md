@@ -1,5 +1,5 @@
 # `Simple wrapper for TPOT`
-** Note that the file train_TPOT.py is a modified version from Ben's repo **
+
 [TPOT](https://epistasislab.github.io/tpot/ "TPOT homepage") is an "auto ML" package that finds 
 a good machine learning pipeline for your data. It is a genetic algorithm that searches
 over the sklearn classifier algorithms. It does not train the model or do prediction, it's just

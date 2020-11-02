@@ -19,20 +19,22 @@ train_feat_mat: "TPOT/res_train_dat_comb_full.csv"
 test_feat_mat: "TPOT/res_test_dat_comb_full.csv"
 model_name: "tpot_select" #Options: FF_1hidden, log_reg, SVM, rand_forest, extra_trees, estimator_SVM
 # humap with separted train and test sets - tpot result - extra_trees
-best_classifier: "GradientBoostingClassifier" # Only for tpot_select - ExtraTreesClassifier
+# best_classifier: "GradientBoostingClassifier" # Only for tpot_select - ExtraTreesClassifier
  
+model_dir: ""
 # --------------------Search parameters ------------------------------
 seed_mode: "all_nodes_known_comp" # Options:all_nodes_known_comp, all_nodes, n_nodes
 num_comp: 10 # Options: 10, 7778, 1500 - only for n_nodes mode
 
 run_mode: "serial" # Options: serial, parallel
-max_size: 10 # max size of complex in sampling - will get overwritten by actual max size from data if starting from the start 
+max_size_thres: 50  
 
 search_method: "search_max_neig" # isa, metropolis, search_top_neigs, search_max_neig 
     
 # All methods except max_neig    
 thres_neig: 30 # Maximum number of neighbors sampled for checking 
-perc: 0.9 # Percentage of neighbors to check for adding new node 
+min_thres_neig_sorted: 100 # Threshold above which only a percentage of neigs are considered as per sorted weights
+perc: 0.9 # Percentage of neighbors to check for adding new node
 explore_prob: 0.01 # use 0.1 for top_neigs 
 # Metropolis algorithm params
 prob_metropolis: 0.01

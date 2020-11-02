@@ -248,29 +248,29 @@ else:
     tpot_config.update(Classifiers) # use all
     
     
-print "Loading data"
+print("Loading data")
 df = pd.read_csv(args.training_data, sep=args.delimiter)
 label_name = df.columns[-1]
-print "Using '{}' as label column".format(label_name)
+print("Using '{}' as label column".format(label_name))
 
-print "Dropping unlabeled rows"
+print("Dropping unlabeled rows")
 df = df[df[label_name].isin(args.labels)]
 
 labels = df.pop(label_name)
 data = df.values
 
-print "Loading test data"
+print("Loading test data")
 df = pd.read_csv(args.testing_data, sep=args.delimiter)
 label_name = df.columns[-1]
-print "Using '{}' as label column".format(label_name)
+print("Using '{}' as label column".format(label_name))
 
-print "Dropping unlabeled rows"
+print("Dropping unlabeled rows")
 df = df[df[label_name].isin(args.labels)]
 
 labels_test = df.pop(label_name)
 data_test = df.values
         
-print "Running TPOT"
+print("Running TPOT")
 #cv=5 , i.e by default it does 5-fold crossvalidation on the training set
 tpot = TPOTClassifier(verbosity=2, scoring=args.score, config_dict=tpot_config,
                         generations=args.generations, population_size=args.population_size,
@@ -308,26 +308,21 @@ for key,val in my_dict.items():
         final_dict[main_classifier] = []
 
 with open(args.outfile_classifiers,"w") as f:
-        f.write("Classifier\tScore\tPipeline\n")
-        for key,val in final_dict.items():
-            main_classifier = key
-	    val_scores = [item[0] for item in val]
-	    pipelines = [item[1] for item in val]
-            if val_scores:
-	            cur_score = max(val_scores)
-		    cur_pipeline = pipelines[np.argmax(val_scores)]
-	            f.write(main_classifier)
-	            f.write("\t")
-        	    f.write(str(cur_score))
-		    f.write("\t")
-        	    f.write(str(cur_pipeline))
-	            f.write("\n")
+    f.write("Classifier\tScore\tPipeline\n")
+    for key,val in final_dict.items():
+        main_classifier = key
+        val_scores = [item[0] for item in val]
+        pipelines = [item[1] for item in val]
+        if val_scores:
+            cur_score = max(val_scores)
+            cur_pipeline = pipelines[np.argmax(val_scores)]
+            f.write(main_classifier + "\t" + str(cur_score) + "\t" + str(cur_pipeline) + "\n")
 
 with open(args.outfile_classifiers) as f:
-        raw_lines = f.readlines()
-        words = [line.rstrip("\n").split("\t") for line in raw_lines[1:]]
-        classifiers = [word[0] for word in words]
-        pipelines = [word[2] for word in words]
+    raw_lines = f.readlines()
+    words = [line.rstrip("\n").split("\t") for line in raw_lines[1:]]
+    classifiers = [word[0] for word in words]
+    pipelines = [word[2] for word in words]
 
 fig = plt.figure(figsize=(8,6),dpi=300)   
 plt.xlabel('Recall')
@@ -336,29 +331,29 @@ plt.ylim([0.0, 1.05])
 plt.xlim([0.0, 1.0])    
 plt.title('Precision-Recall curve')          
 for i,classi in enumerate(classifiers):
-        # if model is linearsvc then convert to svc
-        pipeline_string = pipelines[i]
-        #print(pipeline_string)
-        # convert pipeline string to scikit-learn pipeline object
-        deap_pipeline = creator.Individual.from_string(pipeline_string, tpot._pset)
-        clf = tpot._toolbox.compile(expr=deap_pipeline)		
-        if classi == "LinearSVC":
-            print(clf)
-            n = len(clf.steps)
-            linsvc = str(clf.steps.pop(n-1))
-            print(linsvc)
-            print(clf)
-            match = re.search(r"C=(\d*.\d*)",linsvc)
-            C_val = float(match.group(1))
-            print(C_val)
-            from sklearn.svm import SVC
-            clf.steps.append(('svc',SVC(kernel='linear',probability=True,C=C_val,tol=1e-05)))
-            print(clf)
-        clf.fit(data,labels)    
-        test_fit_probs = clf.predict_proba(data_test)[:,1]
-        test_aps = sklearn.metrics.average_precision_score(labels_test,test_fit_probs)
-        test_p, test_r, _ = sklearn.metrics.precision_recall_curve(labels_test, test_fit_probs)
-        plt.plot(test_r,test_p,label = classi+" - AP: "+str(round(test_aps,3)),linewidth=2.5)
+    # if model is linearsvc then convert to svc
+    pipeline_string = pipelines[i]
+    #print(pipeline_string)
+    # convert pipeline string to scikit-learn pipeline object
+    deap_pipeline = creator.Individual.from_string(pipeline_string, tpot._pset)
+    clf = tpot._toolbox.compile(expr=deap_pipeline)		
+    if classi == "LinearSVC":
+        print(clf)
+        n = len(clf.steps)
+        linsvc = str(clf.steps.pop(n-1))
+        print(linsvc)
+        print(clf)
+        match = re.search(r"C=(\d*.\d*)",linsvc)
+        C_val = float(match.group(1))
+        print(C_val)
+        from sklearn.svm import SVC
+        clf.steps.append(('svc',SVC(kernel='linear',probability=True,C=C_val,tol=1e-05)))
+        print(clf)
+    clf.fit(data,labels)    
+    test_fit_probs = clf.predict_proba(data_test)[:,1]
+    test_aps = sklearn.metrics.average_precision_score(labels_test,test_fit_probs)
+    test_p, test_r, _ = sklearn.metrics.precision_recall_curve(labels_test, test_fit_probs)
+    plt.plot(test_r,test_p,label = classi+" - AP: "+str(round(test_aps,3)),linewidth=2.5)
 
 plt.legend(bbox_to_anchor=(1.04,1), loc="upper left")
 plt.savefig(args.outfile_fig,bbox_inches='tight')
