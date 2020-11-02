@@ -1,6 +1,6 @@
 # sup_graph
 ## Installation:
-Requires python3 
+Requires python3  
 python3 -m pip install -r requirements_py3.txt --user
 
 ## Available experiments:
