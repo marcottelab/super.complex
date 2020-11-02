@@ -1,4 +1,11 @@
 # sup_graph
+
+Requirements
+Python 2/ Python 3
+tensorflow - for neural network option
+	Installation in anaconda3:
+		conda install tensorflow
+
 For each step except step 3, run: 
 python main.py --input_file_name input_humap.yaml --out_dir_name /results_your_name
 or for python 3 (if you want to use a neural network):

@@ -13,7 +13,7 @@ mode: non_gen # gen means only feature extraction, non_gen is all
 # -------------------Training parameters--------------------------------
 feats: 6
 
-model_type: "tpot" # Options: tpot, NN
+model_type: "NN" # Options: tpot, NN
 train_feat_mat: "toy_network/res_train_dat.csv"
 test_feat_mat: "toy_network/res_train_dat.csv"
 model_name: "SVM" #Options: FF_1hidden, log_reg, SVM, rand_forest, extra_trees
