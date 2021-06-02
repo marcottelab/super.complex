@@ -1,7 +1,16 @@
-# sup_graph
+# Super.Complex
+
+## Installation
+Requirements installation:
+python -m pip install -r requirements.txt --user
+Works for Python version < 3.8
+
+## Instructions
+
 For each step except step 3, run: 
 python main.py --input_file_name input_humap.yaml --out_dir_name /results_your_name
-The input file input_humap.yaml needs to be modified at each step according to the instruction before running the above command.
+The input file input_humap.yaml needs to be modified with the inclusion of required parameters before running the above command for each step. 
+Alternately, argparse arguments need to be provided when running the above command.
 
 1. Split complex list into train and test:
 Set option split_flag = 1
@@ -28,6 +37,7 @@ feature matrices paths
 For the cliques algorithm search, set seed_mode = cliques
 For other algos, it can be all_nodes_known_comp, all_nodes or n_nodes and algo needs to be set in search_method
 
-Requirements installation:
-python -m pip install -r requirements.txt --user
-Works for Python version < 3.8
+5. Postprocessing 
+6. Evaluation
+
+

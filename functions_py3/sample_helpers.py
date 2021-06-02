@@ -161,16 +161,20 @@ def starting_edge(folNm, seed_node):
 
 def pick_top_weight_neigs(neig_list, perc, inputs):
     n_maxs = len(neig_list)
+        
     if n_maxs == 0:
         return None
+        
     if n_maxs > inputs['min_thres_neig_sorted']:
         n_maxs = int(np_ceil(perc * len(neig_list)))
+    else:
+        return neig_list    
 
     imp_neigs = dict(sorted(neig_list.items(), key=lambda elem: elem[1]['weight'], reverse=True)[:n_maxs])
     return imp_neigs
 
 
-def find_imp_neig(imp_neigs, g1, perc, model, scaler, inputs, explore_prob, rand_flag):
+def find_imp_neig(imp_neigs, g1, perc, model, scaler, inputs, explore_prob, rand_flag): # rename to epsilon-greedy
     score_fin = None
     comp_bool_fin = None
     if len(imp_neigs) == 1:
@@ -184,6 +188,7 @@ def find_imp_neig(imp_neigs, g1, perc, model, scaler, inputs, explore_prob, rand
         else:
             if inputs["use_all_neigs"] == 0:
                 imp_neigs = pick_top_weight_neigs(imp_neigs, perc, inputs)
+                # Return none when imp_neigs is None
 
             for neig in imp_neigs:
                 # Add to graph

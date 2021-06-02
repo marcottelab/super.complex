@@ -8,7 +8,7 @@ def get_word_names(words, id_name_map):
         if node == "None":
             continue
         if node not in id_name_map or id_name_map[node] == '-':
-            print(node)
+            #print(node)
             node_nm = node
         else:
             node_nm = id_name_map[node]
@@ -16,10 +16,10 @@ def get_word_names(words, id_name_map):
     return frozenset(word_names)
 
 
-def read_gene_id_map():
+def read_gene_id_map(id_name_map_path="./convert_ids/humap_gene_id_name_map.txt"):
     ids = []
     names = []
-    with open("./humap/humap_gene_id_name_map.txt") as f:
+    with open(id_name_map_path) as f:
         for line in f:
             entries = line.split("\t")
             ids.append(entries[0])
@@ -142,10 +142,19 @@ def convert_nodes_matches_wscore(complex_matches, filename, id_name_map):
         f.write(edge_nm)        
         
 def convert_edges_wscore(complexes, G, filename, id_name_map):
+    
+    # Fix id_name_map as this as it relabels with -
+    # Changing id_name_map - to same protein if -
+    
+    for node in id_name_map:
+        if id_name_map[node] == '-':
+            id_name_map[node] = node
+    
     with open(filename, "wb") as f_edges:
         f_edges_write = f_edges.write
         for comp in complexes:
             # Convert graph names
+            
             comp_nam = nx_relabel_nodes(G.subgraph(comp[0]), id_name_map)
             nx_write_weighted_edgelist(comp_nam, f_edges)
             eos = "Score = " + str(comp[1]) + "\n\n"

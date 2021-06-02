@@ -14,6 +14,9 @@ import matplotlib.pyplot as plt
 from logging import info as logging_info
 import pandas as pd
 
+plt.rcParams["font.family"] = "Times New Roman"
+plt.rcParams["font.size"] = 14
+
 
 def generate_freq_dict(X_pos_test, res_pos, lbl):
     # dictionary with size as key and values as total and correctly classified
@@ -72,8 +75,14 @@ def plot_pr_curve(test_p, test_r, test_aps, out_comp_nm):
     plt.ylabel('Precision')
     plt.ylim([0.0, 1.05])
     plt.xlim([0.0, 1.0])
-    plt.title('Precision-Recall curve: AP={0:0.2f}'.format(test_aps))
-    plt.savefig(out_comp_nm + '_pr_curve.png')
+    #plt.title('Precision-Recall curve for subgraph classification (AP={0:0.2f})'.format(test_aps))
+    plt.title('Precision-Recall curve for subgraph classification')
+    print(test_aps)
+    
+    plt.savefig(out_comp_nm + '_pr_curve.eps',dpi=350,format='eps')
+    plt.savefig(out_comp_nm + '_pr_curve.jpg',dpi=350,format='jpg')
+    plt.savefig(out_comp_nm + '_pr_curve.tiff',dpi=350,format='tiff')
+    
     # plt.show()            # Does not work on pod
     plt.close(fig)
 

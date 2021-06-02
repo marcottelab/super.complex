@@ -23,15 +23,19 @@ from testClassi import test_classi
 from trainClassi import train_classi
 from feat_extract import feature_extract
 from read_complexes import read_complexes
-
+from read_pp_graph import write_graph_stats_neig_lists
 from logging import basicConfig as logging_basicConfig, INFO as logging_INFO, DEBUG as logging_DEBUG
 from pickle import dump as pickle_dump, load as pickle_load
+import networkx
 
 
 def main():
     parser = argparse_ArgumentParser("Input parameters")
     parser.add_argument("--input_file_name", default="input_toy.yaml", help="Input parameters file name")
     parser.add_argument("--out_dir_name", default="/results", help="Output directory name")
+    parser.add_argument("--train_test_files_dir", default="", help="Train test file path")
+    parser.add_argument("--graph_files_dir", default="", help="Graph files' folder path")
+    
     parser.add_argument("--split_flag", help="Train test split to do")
     parser.add_argument("--classifier_file", help="classifier file")
     parser.add_argument("--train_feat_mat", help="Train feat mat")
@@ -45,10 +49,22 @@ def main():
         inputs = yaml_load(f, yaml_Loader)
 
     # Override output directory name if same as gen
-    if inputs['out_comp_nm'] == "/results/res":
+    if args.out_dir_name or inputs['out_comp_nm'] == "/results/res":
         if not os_path.exists(inputs['dir_nm'] + args.out_dir_name):
             os_mkdir(inputs['dir_nm'] + args.out_dir_name)
         inputs['out_comp_nm'] = args.out_dir_name + "/res"
+     
+    inputs['train_test_files_dir'] = ''
+    if args.train_test_files_dir:
+        if not os_path.exists(inputs['dir_nm'] + args.train_test_files_dir):
+            os_mkdir(inputs['dir_nm'] + args.train_test_files_dir)
+        inputs['train_test_files_dir'] = args.train_test_files_dir      
+        
+    inputs['graph_files_dir'] = ''
+    if args.graph_files_dir:
+        if not os_path.exists(inputs['dir_nm'] + args.graph_files_dir):
+            os_mkdir(inputs['dir_nm'] + args.graph_files_dir)
+        inputs['graph_files_dir'] = args.graph_files_dir                
 
     # Override split flag and mode if present
     if args.split_flag:
@@ -71,27 +87,34 @@ def main():
 
     logging_basicConfig(filename=inputs['dir_nm'] + inputs['out_comp_nm'] + "_logs.yaml", level=logging_INFO)
 
-    myGraphName = inputs['dir_nm'] + "/res_myGraph"
+    myGraphName = inputs['dir_nm'] + inputs['graph_files_dir']+ "/res_myGraph"
     with open(myGraphName, 'rb') as f:
         myGraph = pickle_load(f)
 
     start_time_read_c = time_time()
     known_complex_nodes_list, complex_graphs, test_complex_graphs, prot_list, test_known_complex_nodes_list, train_known_complex_nodes_list = read_complexes(inputs, myGraph)
     read_time_c = time_time() - start_time_read_c
+    
+    if inputs['mode'] == 'gen' and inputs['use_full'] == 0:   
+        # Write the correct reduced graph to file the first time you read complexes (i.e before generating featmats)
+        myGraph = myGraph.subgraph(prot_list)
+        with open(myGraphName, 'wb') as f:
+            pickle_dump(myGraph, f)  
+        write_graph_stats_neig_lists(myGraph,inputs)             
 
     known_complex_nodes_listfname = inputs['dir_nm'] + "/res_known_complex_nodes_list"
     with open(known_complex_nodes_listfname, 'wb') as f:
         pickle_dump(known_complex_nodes_list, f)
 
-    train_known_complex_nodes_listfname = inputs['dir_nm'] + "/res_train_known_complex_nodes_list"
+    train_known_complex_nodes_listfname = inputs['dir_nm'] + inputs['train_test_files_dir'] + "/res_train_known_complex_nodes_list"
     with open(train_known_complex_nodes_listfname, 'wb') as f:
         pickle_dump(train_known_complex_nodes_list, f)
     
-    test_known_complex_nodes_listfname = inputs['dir_nm'] + "/res_test_known_complex_nodes_list"
+    test_known_complex_nodes_listfname = inputs['dir_nm'] + inputs['train_test_files_dir']+ "/res_test_known_complex_nodes_list"
     with open(test_known_complex_nodes_listfname, 'wb') as f:
         pickle_dump(test_known_complex_nodes_list, f)
    
-    protlistfname = inputs['dir_nm'] + "/res_protlist"
+    protlistfname = inputs['dir_nm'] + inputs['train_test_files_dir']+ "/res_protlist"
     with open(protlistfname, 'wb') as f:
         pickle_dump(prot_list, f)
 
@@ -102,8 +125,8 @@ def main():
             inputs, complex_graphs, test_complex_graphs, myGraph)
         feat_time = time_time() - start_time_feat
 
-        max_size_trainF = inputs['dir_nm'] + "/res_max_size_train"
-        max_size_testF = inputs['dir_nm'] + "/res_max_size_test"
+        max_size_trainF = inputs['dir_nm']+ inputs['train_test_files_dir'] + "/res_max_size_train"
+        max_size_testF = inputs['dir_nm'] + inputs['train_test_files_dir']+ "/res_max_size_test"
 
         with open(max_size_trainF, 'wb') as f:
             pickle_dump(max_size_train, f)

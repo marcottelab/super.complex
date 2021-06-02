@@ -10,6 +10,7 @@ from logging import debug as logging_debug
 from pickle import load as pickle_load
 
 
+# More efficient to have a global set of random graphs, and sample again for missing number of steps. Start from a high number of steps and go lower, recycling the smaller random walks.
 def random_walk(seed_node, n, folNm):  # in graph G
     neg_comp = nx_Graph()
     neg_comp.add_node(seed_node)

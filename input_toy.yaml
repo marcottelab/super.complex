@@ -47,6 +47,7 @@ T0: 0.88
 alpha: 1.8
 
 over_t: 0.1 # Overlap threshold = 0.7/0.9
+infer_overlap_threshold: "y"
 
 # Evaluation parameters
 eval_p: 0.5 # threshold in metric for evaluation of complexes 

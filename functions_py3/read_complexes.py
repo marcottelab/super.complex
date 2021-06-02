@@ -251,7 +251,7 @@ def split_meth_orig(perm_lines, inputs):
     return train_list, test_list
 
 
-def merge_overlapped(list_comp):
+def merge_overlapped(list_comp,overlap_thres = 0.6):
     logging_info("Merging complexes...")
 
     fin_list = list(list_comp)
@@ -282,7 +282,7 @@ def merge_overlapped(list_comp):
                 max_over_comp = temp_list[OS_max_ind]
                 OS_max_ind_fin = fin_list.index(max_over_comp)
 
-                if OS_max >= 0.6:
+                if OS_max >= overlap_thres:
                     n_changes += 1
                     # Merge and find score. If score is higher than individual complexes
                     # Keep as new complex
@@ -407,6 +407,8 @@ def read_complexes(inputs, G):
     out_comp_nm = inputs['dir_nm'] + inputs['out_comp_nm']
 
     logging_info("Reading complexes...")
+    
+    # REMOVE DUPLICATE PROTEINS IN A PARTICULAR COMPLEX
 
     split_flag = split_flag
     if split_flag == 1:

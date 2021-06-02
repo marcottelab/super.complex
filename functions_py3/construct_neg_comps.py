@@ -74,15 +74,15 @@ def same_dist_exact(scale_fac, G_nodes, sizes, folNm):
 
 def construct_neg_comps(max_size, n_pos, scale_fac, G_nodes, sizes, dist="uniform", folNm = ""):
     neg_comp_list_init = []
-    print("No.of pos comps ", len(sizes))
+    print("No. of positive comps = ", len(sizes))
     if dist == "same":
         neg_comp_list_init = same_dist(scale_fac, G_nodes, sizes, folNm)
     else:
         min_size = min(sizes)
         neg_comp_list_init = uniform_dist(min_size, max_size, n_pos, scale_fac, G_nodes, folNm)
 
-    print("No. of neg complexes", len(neg_comp_list_init))
+    print("No. of negative complexes = ", len(neg_comp_list_init))
     # Remove random walks with 1 or 2 nodes
     neg_comp_list = [walk for walk in neg_comp_list_init if len(walk) >= 3]
-    print("No. of neg complexes", len(neg_comp_list))
+    print("No. of negative complexes with sizes greater than 2 = ", len(neg_comp_list))
     return neg_comp_list

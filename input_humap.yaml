@@ -5,7 +5,7 @@ netf_nm: "/test_graph.txt"
 comf_nm: "/res_train_complexes_new_73_more.txt" 
 comf_test_nm: "/res_test_complexes_new_73_more.txt" # Make sure no extra rows are present
 comf_nm_all: "/all_complexes.txt"
-out_comp_nm: "/results/res" 
+out_comp_nm: "/results_73_neg_unif_10xisa_e0.01_T01.75_a0.005_o0.3/res" 
 scale_factor: 10  # Number of times negatives should be higher than positives 
 use_full: 1
 split_flag: 0
@@ -15,21 +15,20 @@ mode: non_gen # gen means only feature extraction, non_gen is all
 # -------------------Training parameters--------------------------------
 feats: 6
 
-classifier_file: "humap/results_73_neg_same_size_dist/tpot_classifiers_new_73.txt"
+classifier_file: "humap/results_73_neg_unif_10x/res_classifiers_new.txt" # or remove new - CHECK
 model_type: "tpot" # Options: tpot, NN
-train_feat_mat: "humap/results_73_neg_same_size_dist/res_train_dat_new_73.csv"
-test_feat_mat: "humap/results_73_neg_same_size_dist/res_test_dat_new_73.csv"
+train_feat_mat: "humap/results_73_neg_unif_10x/res_train_dat.csv"
+test_feat_mat: "humap/results_73_neg_unif_10x/res_test_dat.csv"
 model_name: "tpot_select" #Options: FF_1hidden, log_reg, SVM, rand_forest, extra_trees, estimator_SVM
-# humap with separted train and test sets - tpot result - extra_trees
-# best_classifier: "LogisticRegression" # Only for tpot_select - ExtraTreesClassifier
-model_dir: "/results_73_neg_same_size_dist/res"
+model_dir: "/results_73_neg_unif_10x/res"
 # --------------------Search parameters ------------------------------
 seed_mode: "all_nodes" # Options:all_nodes_known_comp, all_nodes, n_nodes,cliques
 num_comp: 5 # Options: 10, 7778, 1500 - only for n_nodes mode
+classi_thresh: 0.5
 
 run_mode: "parallel" # Options: serial, parallel
-max_size_thres: 20 
-search_method: "metropolis" # isa, metropolis, search_top_neigs, search_max_neig 
+max_size_thres: 11 
+search_method: "isa" # isa, metropolis, search_top_neigs, search_max_neig 
 
 # All methods except max_neig    
 use_all_neigs: 1
@@ -37,14 +36,16 @@ thres_neig: 30 # Maximum number of neighbors sampled for checking
 min_thres_neig_sorted: 100 # Threshold above which only a percentage of neigs are considered as per sorted weights
 perc: 0.7 # Percentage of neighbors to check for adding new node
 explore_prob: 0.01 # use 0.1 for top_neigs 
+
 # Metropolis algorithm params
 prob_metropolis: 0.1
 
 # ISA params
-T0: 0.88
-alpha: 1.8
+T0: 1.75
+alpha: 0.005
 
-over_t: 0.5 # Overlap threshold = 0.7/0.9
+over_t: 0.375 # Overlap threshold = 0.7/0.9
+overlap_method: "qi" # qi or 1
 
 # Evaluation parameters
 eval_p: 0.5 # threshold in metric for evaluation of complexes 

@@ -25,7 +25,7 @@ from eval_complex import eval_complex
 from logging import basicConfig as logging_basicConfig, INFO as logging_INFO, DEBUG as logging_DEBUG
 from pickle import load as pickle_load
 from complex_comparison import *
-from main_postprocess import get_prot_list
+from main5_postprocess import get_prot_list
 from sizewise_scores import sizewise_scores
 from matplotlib.pyplot import subplots as plt_subplots, savefig as plt_savefig
 
@@ -90,13 +90,16 @@ def run_metrics(gold_standard_complexes, predicted_clusters, out_comp_nm, pref):
 def main():
     parser = argparse_ArgumentParser("Input parameters")
     parser.add_argument("--input_file_name", default="input_humap.yaml", help="Input parameters file name")
-    parser.add_argument("--out_dir_name", default="/results", help="Output directory name, by default - /results")
+    parser.add_argument("--out_dir_name", default="/results_2stageclustering_comparison", help="Output directory name, by default - /results")
     parser.add_argument("--seed_mode", help="Seed mode - specify 'cliques' for the cliques algo")
+    parser.add_argument("--train_test_files_dir", default="", help="Train test file path")
+    
     parser.add_argument("--search_method", help="Sampling algorithm")
     parser.add_argument("--model_dir", help="Directory containing model")
     parser.add_argument("--python_command", default="python", help="python / python3")
-    parser.add_argument("--read_flag", default=0, help="1 when you want to read from file for evaluation")
+    parser.add_argument("--read_flag", default=1, help="1 when you want to read from file for evaluation")
     parser.add_argument("--complex_file_name", default="humap/results_2stageclustering_comparison/humap_2stage_clustering_res.txt", help="complexes file name")
+    parser.add_argument("--evaluate_additional_metrics", default=1, help="complexes file name")
 
     args = parser.parse_args()
     rf = args.read_flag
@@ -107,11 +110,18 @@ def main():
 
     if args.model_dir:
         inputs['model_dir'] = args.model_dir
+                
     # Override output directory name if same as gen
-    if inputs['out_comp_nm'] == "/results/res":
+    if args.out_dir_name or inputs['out_comp_nm'] == "/results/res":
         if not os_path.exists(inputs['dir_nm'] + args.out_dir_name):
             os_mkdir(inputs['dir_nm'] + args.out_dir_name)
         inputs['out_comp_nm'] = args.out_dir_name + "/res"
+        
+    inputs['train_test_files_dir'] = ''
+    if args.train_test_files_dir:
+        if not os_path.exists(inputs['dir_nm'] + args.train_test_files_dir):
+            os_mkdir(inputs['dir_nm'] + args.train_test_files_dir)
+        inputs['train_test_files_dir'] = args.train_test_files_dir          
 
     with open(inputs['dir_nm'] + inputs['out_comp_nm'] + "_input_eval.yaml", 'w') as outfile:
         yaml_dump(inputs, outfile, default_flow_style=False)
@@ -119,13 +129,11 @@ def main():
     logging_basicConfig(filename=inputs['dir_nm'] + inputs['out_comp_nm'] + "_logs.yaml", level=logging_INFO)
     # fin_list_graphs = control(myGraph,inputs,n=50)
 
-
-
     # eval_complex(rf,rf_nm,inputs,known_complex_nodes_list,prot_list,myGraph,fin_list_graphs)
 
     known_complex_nodes_listfname = inputs['dir_nm'] + "/res_known_complex_nodes_list"
 
-    protlistfname = inputs['dir_nm'] + "/res_protlist"
+    protlistfname = inputs['dir_nm'] + inputs['train_test_files_dir']+ "/res_protlist"
     with open(protlistfname, 'rb') as f:
         prot_list = pickle_load(f)
     with open(known_complex_nodes_listfname, 'rb') as f:
@@ -151,13 +159,17 @@ def main():
 
     pythonCommand = args.python_command
     if rf == 1:
-        eval_complex(rf, rf_nm, inputs, known_complex_nodes_list, prot_list)
-    else:
-        start_time_eval = time_time()
+        if rf_nm == 0:
+            rf_nm = out_comp_nm + '_pred.out'
+            
+        with open(rf_nm) as fn:
+            fin_list_graphs = [(set(line.rstrip('\n').split()),1) for line in fn]  # Space separated text only
+        
+        # TRAINING SET EVALUATION
         with open(out_comp_nm + '_metrics.out', "a") as fid:
             print("\n --- On training set ---", file=fid)
 
-        train_complex_path = inputs['dir_nm'] + "/res_train_known_complex_nodes_list"
+        train_complex_path = inputs['dir_nm'] + inputs['train_test_files_dir']+ "/res_train_known_complex_nodes_list"
         try:
             with open(train_complex_path + "_prot_list",'rb') as f:
                 train_prot_list = pickle_load(f)
@@ -168,12 +180,18 @@ def main():
             train_complex_list = pickle_load(f)
         
         eval_complex(rf, rf_nm, inputs, train_complex_list, train_prot_list, fin_list_graphs,"_train")
-        try:
-            run_metrics(train_complex_list, fin_list_graphs, out_comp_nm, "_train")
-        except:
-            print("Error in running additional metrics for train")
+        
+        if args.evaluate_additional_metrics:
+            try:
+                run_metrics(train_complex_list, fin_list_graphs, out_comp_nm, "_train")
+            except:
+                print("Error in running additional metrics for train")
+         
+        # TEST SET EVALUATION            
+        with open(out_comp_nm + '_metrics.out', "a") as fid:
+            print("\n --- On test set ---", file=fid) 
             
-        test_complex_path = inputs['dir_nm'] + "/res_test_known_complex_nodes_list"
+        test_complex_path = inputs['dir_nm'] + inputs['train_test_files_dir']+ "/res_test_known_complex_nodes_list"
         try:
             with open(test_complex_path + "_prot_list",'rb') as f:
                 test_prot_list = pickle_load(f)
@@ -183,20 +201,81 @@ def main():
         with open(test_complex_path, 'rb') as f:
             test_complex_list = pickle_load(f)
             
-        with open(out_comp_nm + '_metrics.out', "a") as fid:
-            print("\n --- On test set ---", file=fid)
         eval_complex(rf, rf_nm, inputs, test_complex_list, test_prot_list, fin_list_graphs,"_test")
+        
+        if args.evaluate_additional_metrics:
+            try:
+                run_metrics(test_complex_list, fin_list_graphs, out_comp_nm, "_test")
+            except:
+                print("Error in running additional metrics for test")        
+        # ON BOTH SETS
+        with open(out_comp_nm + '_metrics.out', "a") as fid:
+            print("\n --- On both sets ---", file=fid)        
+        eval_complex(rf, rf_nm, inputs, known_complex_nodes_list, prot_list,fin_list_graphs,"_both")
+        
+        if args.evaluate_additional_metrics:
+            try:
+                run_metrics(known_complex_nodes_list, fin_list_graphs, out_comp_nm, "")
+            except:
+                print("Error in running additional metrics for both")    
+    else:
+        start_time_eval = time_time()
+        
+        # TRAINING SET EVALUATION
+        with open(out_comp_nm + '_metrics.out', "a") as fid:
+            print("\n --- On training set ---", file=fid)
+
+        train_complex_path = inputs['dir_nm'] + inputs['train_test_files_dir']+ "/res_train_known_complex_nodes_list"
         try:
-            run_metrics(test_complex_list, fin_list_graphs, out_comp_nm, "_test")
+            with open(train_complex_path + "_prot_list",'rb') as f:
+                train_prot_list = pickle_load(f)
         except:
-            print("Error in running additional metrics for test")
+            train_prot_list = get_prot_list(train_complex_path)
+    
+        with open(train_complex_path, 'rb') as f:
+            train_complex_list = pickle_load(f)
+        
+        eval_complex(rf, rf_nm, inputs, train_complex_list, train_prot_list, fin_list_graphs,"_train")
+        
+        if args.evaluate_additional_metrics:
+            try:
+                run_metrics(train_complex_list, fin_list_graphs, out_comp_nm, "_train")
+            except:
+                print("Error in running additional metrics for train")
+         
+        # TEST SET EVALUATION            
+        with open(out_comp_nm + '_metrics.out', "a") as fid:
+            print("\n --- On test set ---", file=fid) 
+            
+        test_complex_path = inputs['dir_nm'] + inputs['train_test_files_dir']+ "/res_test_known_complex_nodes_list"
+        try:
+            with open(test_complex_path + "_prot_list",'rb') as f:
+                test_prot_list = pickle_load(f)
+        except:
+            test_prot_list = get_prot_list(test_complex_path)
+    
+        with open(test_complex_path, 'rb') as f:
+            test_complex_list = pickle_load(f)
+            
+        eval_complex(rf, rf_nm, inputs, test_complex_list, test_prot_list, fin_list_graphs,"_test")
+        
+        if args.evaluate_additional_metrics:
+            try:
+                run_metrics(test_complex_list, fin_list_graphs, out_comp_nm, "_test")
+            except:
+                print("Error in running additional metrics for test")
+                
+        # BOTH SETS EVALUATION                            
         with open(out_comp_nm + '_metrics.out', "a") as fid:
             print("\n --- On both sets ---", file=fid)
         eval_complex(rf, rf_nm, inputs, known_complex_nodes_list, prot_list, fin_list_graphs,"_both")
-        try:
-            run_metrics(known_complex_nodes_list, fin_list_graphs, out_comp_nm, "")
-        except:
-            print("Error in running additional metrics for both")
+        
+        if args.evaluate_additional_metrics:
+            try:
+                run_metrics(known_complex_nodes_list, fin_list_graphs, out_comp_nm, "")
+            except:
+                print("Error in running additional metrics for both")
+                
         if not os_path.exists(out_comp_nm + "_edge_pr_files"):
             os_mkdir(out_comp_nm + "_edge_pr_files")
         for pref in ["", "_train", "_test"]:

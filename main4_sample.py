@@ -31,6 +31,10 @@ def main():
     parser = argparse_ArgumentParser("Input parameters")
     parser.add_argument("--input_file_name", default="input_toy.yaml", help="Input parameters file name")
     parser.add_argument("--out_dir_name", default="/results", help="Output directory name")
+    parser.add_argument("--train_test_files_dir", default="", help="Train test file path")
+    parser.add_argument("--graph_files_dir", default="", help="Graph files' folder path")
+    
+    parser.add_argument("--n_pts", default=1, help="number of partitions (computers)")
     parser.add_argument("--seed_mode", help="Seed mode - specify 'cliques' for the cliques algo")
     parser.add_argument("--search_method", help="Sampling algorithm")
     parser.add_argument("--model_dir", help="Directory containing model")
@@ -39,6 +43,7 @@ def main():
     parser.add_argument("--prob_metropolis", default=0.1, help="metropolis probability")
     parser.add_argument("--T0", default=0.88, help="isa T0")
     parser.add_argument("--alpha", default=1.8, help="isa alpha")
+    parser.add_argument("--classi_thresh",default=0.5,help="Classification threshold")
     parser.add_argument("--transfer2tmp",default=True,help="Transfer to tmp folder")
 
     args = parser.parse_args()
@@ -46,6 +51,8 @@ def main():
     with open(args.input_file_name, 'r') as f:
         inputs = yaml_load(f, yaml_Loader)
 
+    if args.classi_thresh:
+        inputs['classi_thresh'] = float(args.classi_thresh)
     if args.seed_mode:
         inputs['seed_mode'] = args.seed_mode
     if args.search_method:
@@ -62,10 +69,22 @@ def main():
         inputs['alpha'] = float(args.alpha)
 
     # Override output directory name if same as gen
-    if inputs['out_comp_nm'] == "/results/res":
+    if args.out_dir_name or inputs['out_comp_nm'] == "/results/res":
         if not os_path.exists(inputs['dir_nm'] + args.out_dir_name):
             os_mkdir(inputs['dir_nm'] + args.out_dir_name)
         inputs['out_comp_nm'] = args.out_dir_name + "/res"
+        
+    inputs['train_test_files_dir'] = ''
+    if args.train_test_files_dir:
+        if not os_path.exists(inputs['dir_nm'] + args.train_test_files_dir):
+            os_mkdir(inputs['dir_nm'] + args.train_test_files_dir)
+        inputs['train_test_files_dir'] = args.train_test_files_dir      
+        
+    inputs['graph_files_dir'] = ''
+    if args.graph_files_dir:
+        if not os_path.exists(inputs['dir_nm'] + args.graph_files_dir):
+            os_mkdir(inputs['dir_nm'] + args.graph_files_dir)
+        inputs['graph_files_dir'] = args.graph_files_dir            
 
     with open(inputs['dir_nm'] + inputs['out_comp_nm'] + "_input_sample.yaml", 'w') as outfile:
         yaml_dump(inputs, outfile, default_flow_style=False)
@@ -78,7 +97,7 @@ def main():
     modelfname = out_comp_nm_model + "_model"
     scalerfname = out_comp_nm_model + "_scaler"
 
-    max_sizeF = inputs['dir_nm'] + "/res_max_size"
+    max_sizeF = inputs['dir_nm']+ inputs['train_test_files_dir'] + "/res_max_size_search_par"
     with open(max_sizeF, 'rb') as f:
         max_size = pickle_load(f)
 
@@ -87,11 +106,18 @@ def main():
 
     myGraph = None
     if inputs['seed_mode'] == "cliques":
-        myGraphName = inputs['dir_nm'] + "/res_myGraph"
+        myGraphName = inputs['dir_nm'] +inputs['graph_files_dir']+ "/res_myGraph"
         with open(myGraphName, 'rb') as f:
             myGraph = pickle_load(f)
 
-    seed_nodes_F = out_comp_nm + "_seed_nodes" + args.ptnum
+    ptns = int(args.n_pts)
+    if inputs['seed_mode'] == 'n_nodes':
+
+        seed_nodes_dir = out_comp_nm + "_seed_nodes"
+    else:
+        seed_nodes_dir =  inputs['dir_nm'] + inputs['graph_files_dir']+ "/" + inputs['seed_mode'] + "_n_pts_" + str(ptns) + "/res_seed_nodes"
+
+    seed_nodes_F = seed_nodes_dir + args.ptnum
     with open(seed_nodes_F, 'rb') as f:
         seed_nodes = pickle_load(f)
 
@@ -102,7 +128,7 @@ def main():
 
     sample_time = time_time() - start_time_sample
     sample_time_avg = sample_time / num_comp
-    folNm_out = "/tmp/" + out_comp_nm + "_orig_comps"
+    folNm_out = "/tmp/" + out_comp_nm + "_orig_comps" # CHECK WHICH NODE's TMP IS BEING USED
 
     pred_comp_list = [pickle_load(open(folNm_out + "/" + seed_node, 'rb')) for seed_node in seed_nodes if
                       os_path.exists(folNm_out + "/" + seed_node)]

@@ -4,13 +4,15 @@ Created on Mon Feb 17 10:18:32 2020
 
 @author: Meg_94
 """
-from numpy import vstack as np_vstack, hstack as np_hstack, where as np_where, array as np_array, delete as np_delete
+from numpy import vstack as np_vstack, hstack as np_hstack, where as np_where, array as np_array, delete as np_delete, percentile as np_percentile
 from pandas import DataFrame as pd_DataFrame, read_csv as pd_read_csv
 from create_feat_mat import create_feat_mat
 from construct_neg_comps import construct_neg_comps
 from networkx import write_weighted_edgelist as nx_write_weighted_edgelist
 from logging import info as logging_info
 from seaborn import boxplot as sns_boxplot
+from math import ceil as math_ceil
+from pickle import dump as pickle_dump
 
 import matplotlib.pyplot as plt
 
@@ -18,7 +20,7 @@ def extract_features(out_comp_nm, split_type, max_size, inputs, G_nodes, feat_li
                      sizes):
     n_pos = len(X_pos)
 
-    folNm = inputs['dir_nm'] + "/neig_dicts"
+    folNm = inputs['dir_nm']+ inputs['graph_files_dir'] + "/neig_dicts"
     dims = X_pos.shape
     n_feats = dims[1]
     with open(out_comp_nm + '_metrics.out', "a") as fid:
@@ -112,11 +114,29 @@ def feature_extract(inputs, complex_graphs, test_complex_graphs, G):
     # n_pos = len(complex_graphs)
     sizes = [len(comp) for comp in complex_graphs]
 
-    max_size_train = max(sizes)
+    # get quartiles
+    q1 = np_percentile(sizes, 25)
+    q3 = np_percentile(sizes, 75)
+    max_wo_outliers = math_ceil(q3 + 4.5*(q3-q1)) # Maximum after removing outliers
 
+    max_size_train = max(sizes)
+    recommended_max_size = min(max_size_train,max_wo_outliers)
+    
+    max_sizeF = inputs['dir_nm'] + inputs['train_test_files_dir']+ "/res_max_size_search"
+    with open(max_sizeF, 'wb') as f:
+        pickle_dump(recommended_max_size, f)
+    
     # n_pos_test = len(test_complex_graphs)
     sizes_test = [len(comp) for comp in test_complex_graphs]
     max_size_test = max(sizes_test)
+
+    fig = plt.figure()
+    # Plot box plot of sizes to know the outliers (for setting step size in sampling)
+    sns_boxplot(sizes)
+    plt.xlabel("Size")
+    plt.title("Size distribution of training complexes")
+    plt.savefig(out_comp_nm + "_known_train_size_dist_box_plot")
+    plt.close(fig)
 
     fig = plt.figure()
     # Plot box plot of sizes to know the outliers (for setting step size in sampling)

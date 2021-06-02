@@ -42,6 +42,7 @@ def search_max_neig(seed_node, scaler, par_inputs_fn):
         if not neig_list:  # Checking if empty
             logging_debug("No more neighbors to add")
             break
+            
         node_to_add = max(neig_list.items(), key=lambda elem: elem[1]['weight'])[0]
         g1 = add_newnode(g1, node_to_add, neig_list[node_to_add]['graph_neigs'])
 
@@ -49,7 +50,7 @@ def search_max_neig(seed_node, scaler, par_inputs_fn):
 
         (score_curr, comp_bool) = get_score(g1, model, scaler, inputs['model_type'])
 
-        if comp_bool == 0:
+        if score_curr < inputs["classi_thresh"]: 
             logging_debug("Complex found")
 
             # Remove the node last added                
@@ -86,7 +87,7 @@ def search_top_neigs(seed_node, scaler, par_inputs_fn):
             score_curr, comp_bool = get_score(g1, model, scaler, inputs['model_type'])
         if cc == 0:
             break
-        if comp_bool == 0:
+        if score_curr < inputs["classi_thresh"]: 
             logging_debug("Complex found")
 
             # Remove the node last added                
@@ -118,7 +119,7 @@ def met(g1, model, scaler, inputs, score_prev):
 
         if cc == 0:
             break
-        if comp_bool == 0:
+        if score_curr < inputs["classi_thresh"]: 
             logging_debug("Complex found")
 
             # Remove the node last added                
@@ -166,7 +167,7 @@ def search_metropolis_clique_start(scaler, par_inputs_fn, G_clique):
     score_prev, comp_bool = get_score(g1, model, scaler, inputs['model_type'])
 
     # Removing starting points which are not complexes    
-    if comp_bool == 0:
+    if score_prev < inputs["classi_thresh"]: 
         return
     a, b = met(g1, model, scaler, inputs, score_prev)
     name = " ".join([str(n) for n in g1.nodes()])
@@ -225,8 +226,7 @@ def search_isa(seed_node, scaler, par_inputs_fn):  # Picks out of a subset of it
 
         if cc == 0:
             break
-
-        if comp_bool == 0:
+        if score_curr < inputs["classi_thresh"]: 
             logging_debug("Complex found")
 
             # Remove the node last added                
@@ -248,13 +248,14 @@ def search_isa(seed_node, scaler, par_inputs_fn):  # Picks out of a subset of it
             last_iter_imp = num_iter
 
         if (num_iter - last_iter_imp) > 10:  # Has been a long time since a score improvement
-            logging_debug("Long time since score imporovement")
+            logging_debug("Long time since score improvement")
             break
 
         score_prev = score_curr
         num_iter += 1
         T = float(T) / alpha
 
+    # If number of nodes is less than 2, don't write.
     with open(folNm_out + "/" + seed_node, 'wb') as f:
         pickle_dump((frozenset(g1.nodes()), score_prev), f)
 
@@ -280,13 +281,15 @@ def sample(inputs, G, modelfname, scaler, seed_nodes, max_size,transfer2tmp):
 
     search_method = inputs["search_method"]
     folNm_out = "/tmp/" + out_comp_nm + "_orig_comps"
-    folNm = inputs['dir_nm'] + "/neig_dicts"
+    folNm = inputs['dir_nm'] + inputs['graph_files_dir'] + "/neig_dicts"
 
 
     if not os_path.exists("/tmp/"):
         os_mkdir("/tmp/")
     if not os_path.exists("/tmp/" + inputs['dir_nm']):
         os_mkdir("/tmp/" + inputs['dir_nm'])
+    if not os_path.exists("/tmp/" + inputs['dir_nm'] + inputs['graph_files_dir'] ):
+        os_mkdir("/tmp/" + inputs['dir_nm'] + inputs['graph_files_dir'] )        
     if not os_path.exists("/tmp/" + out_comp_nm[:-3]):
         os_mkdir("/tmp/" + out_comp_nm[:-3])
         
@@ -303,7 +306,10 @@ def sample(inputs, G, modelfname, scaler, seed_nodes, max_size,transfer2tmp):
     if transfer2tmp:
         tmp_prefix_read = "/tmp/"
         
-    par_inputs = {"use_all_neigs": inputs["use_all_neigs"], "min_thres_neig_sorted": inputs["min_thres_neig_sorted"],
+    if "classi_thresh" not in inputs:
+        inputs["classi_thresh"] = 0.5
+        
+    par_inputs = {"classi_thresh": inputs["classi_thresh"],"use_all_neigs": inputs["use_all_neigs"], "min_thres_neig_sorted": inputs["min_thres_neig_sorted"],
                   "modelfname": tmp_prefix_read + modelfname, "folNm_out": folNm_out, "folNm": tmp_prefix_read + folNm,
                   "model_type": inputs["model_type"],
                   "max_size": max_size, "perc": inputs["perc"], "thres_neig": inputs["thres_neig"],

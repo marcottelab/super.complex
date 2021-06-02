@@ -17,11 +17,13 @@ from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import roc_curve
 from sklearn.metrics import average_precision_score
 
-from matplotlib import rcParams
-
-rcParams.update({'figure.autolayout': True})
-mpl.rc('pdf', fonttype=42)
+#from matplotlib import rcParams
+#
+#rcParams.update({'figure.autolayout': True})
+#mpl.rc('pdf', fonttype=42)
 import seaborn as sns
+
+
 
 sns.set_style("white")
 
@@ -197,6 +199,11 @@ def main():
             roc_filename = args.output_file + label + "_roc_thresholds.csv"
 
             pd.DataFrame({'roc_thresholds': roc_thresholds}).to_csv(roc_filename, index=False)
+            #fig = plt.figure(figsize=(8,6),dpi=96)
+            fig = plt.figure()
+            plt.rcParams["font.family"] = "Times New Roman"
+            plt.rcParams["font.size"] = 16
+            #plt.rc('font', size=14) 
 
             line, = plt.plot(recall, precision, label=label)
             # except Exception as E:
@@ -207,16 +214,19 @@ def main():
     plt.ylabel('Precision')
     plt.ylim([0.0, 1.05])
     plt.xlim([0.0, 1.0])
-    plt.title('Precision-Recall')
+    plt.title('Precision-Recall curve for co-complex edge classification')
     # plt.legend(loc="upper right",fontsize=8)
 
-    plt.savefig(args.output_file)
+    plt.savefig(args.output_file + '.eps',dpi=350,format='eps')
+    plt.savefig(args.output_file + '.jpg',dpi=350,format='jpg')
+    plt.savefig(args.output_file + '.tiff',dpi=350,format='tiff')
 
     output_csv = args.output_file + ".csv"
     output_pr_table.to_csv(output_csv, index=False)
 
     output_roc_csv = args.output_file + "_roc.csv"
     output_roc_table.to_csv(output_roc_csv, index=False)
+    plt.close(fig)
 
 
 if __name__ == "__main__":

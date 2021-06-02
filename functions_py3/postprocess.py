@@ -49,6 +49,87 @@ def filter_overlapped(list_comp, inputs):
     return fin_list
 
 
+def NA(set1, set2):
+    ls1 = len(set1)
+    ls2 = len(set2)
+    if ls1 == 0 and ls2 == 0:
+        return 1
+    inter = float(len(set1.intersection(set2)))
+    
+    a = inter/ls1
+    b = inter/ls2
+    return a,b,a*b
+
+def merge_filter_overlapped_score_qi(list_comp, model, scaler, inputs, G):
+    logging_info("Filtering complexes...")
+
+    fin_list = list(list_comp)
+
+    n = len(fin_list)
+    if n <= 1:
+        return fin_list
+    n_changes = 1
+    while n_changes != 0:
+        if len(fin_list) == 1:
+            logging_debug("only one complex")
+            break
+        n_changes = 0
+        ind = 0
+        while ind < n:
+            if len(fin_list) == 1:
+                logging_debug("only one complex")
+                break
+            else:
+                comp = fin_list[ind]
+                temp_list = list(fin_list)
+                temp_list.remove(comp)
+                OS_comp_3 = [NA(comp[0], comp2[0]) for comp2 in temp_list]
+                OS_comp = [c for a,b,c in OS_comp_3]
+
+                OS_max_ind = int(np_argmax(OS_comp))
+                OS_max_3 = OS_comp_3[OS_max_ind]
+                
+                max_over_comp = temp_list[OS_max_ind]
+                OS_max_ind_fin = fin_list.index(max_over_comp)
+
+                if OS_max_3[0] >= inputs['over_t'] and OS_max_3[1] >= inputs['over_t']:
+                    n_changes += 1
+                    n -= 1
+                    # Merge and find score. If score is higher than individual complexes 
+                    # Keep as new complex                                        
+                    merge_comp_nodes = comp[0].union(max_over_comp[0])
+                    
+                    # Rather than subgraph operation which requires the full graph, 
+                    # you can add only additional edges from the node adjacency lists
+                    merge_comp = nx_Graph(G.subgraph(merge_comp_nodes), comp_score=0)
+
+                    (score_merge, comp_bool) = get_score(merge_comp, model, scaler, inputs['model_type'])
+                    merge_comp.graph['comp_score'] = score_merge
+                    sc1 = comp[1]
+                    sc2 = max_over_comp[1]
+                    if score_merge > sc1 and score_merge > sc2:
+                        fin_list.append((frozenset(merge_comp.nodes()), merge_comp.graph['comp_score']))
+                        fin_list.remove(comp)
+                        fin_list.remove(max_over_comp)
+                        if OS_max_ind_fin <= ind:
+                            ind -= 1
+
+                            # Otherwise: remove lower scoring complex
+                    elif sc1 <= sc2:
+                        fin_list.remove(comp)
+                    else:
+                        fin_list.remove(max_over_comp)
+                        if OS_max_ind_fin > ind:
+                            ind += 1
+                else:
+                    ind += 1
+        logging_info("No. of changes = %s", str(n_changes))
+
+    logging_info("Finished filtering complexes.")
+
+    return fin_list
+
+
 def merge_filter_overlapped_score(list_comp, model, scaler, inputs, G):
     logging_info("Filtering complexes...")
 
@@ -130,7 +211,12 @@ def postprocess(pred_comp_list, modelfname, scaler, inputs, G, prot_list, train_
     logging_info("Finished sampling complexes.")
 
     # Filtering complexes with high overlap with bigger complexes 
-    fin_list_graphs = merge_filter_overlapped_score(fin_list_graphs, model, scaler, inputs, G)
+    
+    if inputs['overlap_method'] == 'qi':
+        fin_list_graphs = merge_filter_overlapped_score_qi(fin_list_graphs, model, scaler, inputs, G)
+    else:
+        fin_list_graphs = merge_filter_overlapped_score(fin_list_graphs, model, scaler, inputs, G)
+        
     # Sort by scores
     fin_list_graphs = sorted(fin_list_graphs, key=lambda x: x[1], reverse=True)
     logging_info("Writing predicted complexes.")

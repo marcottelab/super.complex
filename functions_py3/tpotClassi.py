@@ -43,7 +43,7 @@ def tpot_classi(inputs):
         except ValueError:
             print("Classifier not in list")
     else:
-        best_pipeline = max(words, key=lambda x: float(x[1]))
+        best_pipeline = max(words, key=lambda x: float(x[1])) # Choose classifier that does best on test data, not train
         classi = best_pipeline[0]
         out_comp_nm = inputs['dir_nm'] + inputs['out_comp_nm']
         with open(out_comp_nm + '_metrics.out', "a") as fid:
