@@ -9,10 +9,9 @@ Works for Python version < 3.8
 ## Available experiments:
 1. for toy network use input_toy.yaml
 2. for hu.MAP - use input file input_humap.yaml
-3. for hu.MAP2 use input_humap2.yaml, 
-4. for yeast, use input_yeast_comb.yaml, 
-5. for yeast, for training on TAP complexes and testing on MIPS, use input_yeast_tap.yaml
-6. for yeast, for training on MIPS complexes and testing on TAP, use input_yeast_mips.yaml
+3. for yeast, use input_yeast_comb.yaml, 
+4. for yeast, for training on TAP complexes and testing on MIPS, use input_yeast_tap.yaml
+5. for yeast, for training on MIPS complexes and testing on TAP, use input_yeast_mips.yaml
 
 ## Instructions:
 To run the pipeline on a new network, construct a similar input file (as input_toy.yaml) containing the required inputs.
