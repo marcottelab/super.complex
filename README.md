@@ -17,7 +17,9 @@ Note: For faster installation, if you don't plan to use neural networks, you can
 
 ## Tests:
 pip install -U pytest
+
 cd /path_to_super.complex_directory
+
 pytest
 
 ## Instructions:
