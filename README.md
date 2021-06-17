@@ -6,6 +6,8 @@ Requirements installation:
 python3 -m pip install -r requirements_py3.txt --user
 Works for Python version < 3.8
 
+Note: For faster installation, if you don't plan to use neural networks, you can skip tensorflow installation, by removing the line with tensorflow from the file requirements_py3.txt
+
 ## Available experiments:
 1. for toy network use input_toy.yaml
 2. for hu.MAP - use input file input_humap.yaml
