@@ -89,15 +89,15 @@ def run_metrics(gold_standard_complexes, predicted_clusters, out_comp_nm, pref):
 
 def main():
     parser = argparse_ArgumentParser("Input parameters")
-    parser.add_argument("--input_file_name", default="input_humap.yaml", help="Input parameters file name")
-    parser.add_argument("--out_dir_name", default="/results_2stageclustering_comparison", help="Output directory name, by default - /results")
+    parser.add_argument("--input_file_name", default="input_toy.yaml", help="Input parameters file name")
+    parser.add_argument("--out_dir_name", default="/results", help="Output directory name, by default - /results")
     parser.add_argument("--seed_mode", help="Seed mode - specify 'cliques' for the cliques algo")
     parser.add_argument("--train_test_files_dir", default="", help="Train test file path")
     
     parser.add_argument("--search_method", help="Sampling algorithm")
     parser.add_argument("--model_dir", help="Directory containing model")
     parser.add_argument("--python_command", default="python", help="python / python3")
-    parser.add_argument("--read_flag", default=1, help="1 when you want to read from file for evaluation")
+    parser.add_argument("--read_flag", default=0, help="1 when you want to read from file for evaluation")
     parser.add_argument("--complex_file_name", default="humap/results_2stageclustering_comparison/humap_2stage_clustering_res.txt", help="complexes file name")
     parser.add_argument("--evaluate_additional_metrics", default=1, help="complexes file name")
 

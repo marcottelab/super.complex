@@ -5,27 +5,27 @@ os_chdir(os_path.dirname(os_path.abspath(__file__)))
 pythonCommand="python"
 #pythonCommand="python3"
 def test_read():
-    result = os_system(pythonCommand + " ../../main_read.py")
+    result = os_system(pythonCommand + " ../../main1_read.py")
     assert result == 0
 
 def test_train():
-    result = os_system(pythonCommand + " ../../train.py")
+    result = os_system(pythonCommand + " ../../main2_train.py")
     assert result == 0
 
 def test_partition():
-    result = os_system(pythonCommand + " ../../partition_search_seeds.py")
+    result = os_system(pythonCommand + " ../../main3_partition_search_seeds.py")
     assert result == 0
 
 def test_sample():
-    result = os_system(pythonCommand + " ../../main_sample.py")
+    result = os_system(pythonCommand + " ../../main4_sample.py")
     assert result == 0
 
 def test_postprocess():
-    result = os_system(pythonCommand + " ../../main_postprocess.py")
+    result = os_system(pythonCommand + " ../../main5_postprocess.py")
     assert result == 0
 
 def test_eval():
-    result = os_system(pythonCommand + " ../../main_eval.py")
+    result = os_system(pythonCommand + " ../../main6_eval.py")
     assert result == 0
 
 def test_check_results():
