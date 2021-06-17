@@ -15,6 +15,11 @@ Note: For faster installation, if you don't plan to use neural networks, you can
 4. for yeast, for training on TAP complexes and testing on MIPS, use input_yeast_tap.yaml
 5. for yeast, for training on MIPS complexes and testing on TAP, use input_yeast_mips.yaml
 
+## Tests:
+pip install -U pytest
+cd /path_to_super.complex_directory
+pytest
+
 ## Instructions:
 To run the pipeline on a new network, construct a similar input file (as input_toy.yaml) containing the required inputs.
 
