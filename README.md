@@ -40,6 +40,7 @@ Make sure to change the option split_flag back to 0 after this step
 Example Bash script to run Super.Complex pipeline after the above 2 steps:
 This is for yeast, training on TAP complexes and testing on MIPS. To run on your network, simply modify the input_file_name and out_dir_name parameters
 
+```
 #!/bin/bash  
 mtype=tap  
 input_file_name=input_yeast_$mtype.yaml  
@@ -82,6 +83,7 @@ python3 main6_eval.py --input_file_name $input_file_name --out_dir_name $out_dir
 done  
 
 python3 get_best_f1_score.py
+```
 
 ### Additional tips:
 For each of the scripts, optional arguments can be viewed by running:
@@ -91,7 +93,6 @@ Add the desired arguments with each of the commands directly on the terminal. If
 
 For further cross validation in each of the methods, in the bash script, loop through different values for explore_prob and prob_metropolis if using metropolis, and T0 and alpha if using iterative simulated annealing. We recommend setting max_size_thres based on domain knowledge of the network, to specify the maximum number of steps the algorithm is allowed to take while growing the community. Alternately, performing a box plot of the sizes of known communities and choosing a large size that is not an outlier works well for this. We recommend setting the use_all_neigs to 1, so that all neighbors of a node are explored before deciding which to choose to grow the community. If this is not efficient enough for your compute system, you can set the parameters thres_neig, min_thres_neig_sorted and perc to limit the number of neighbors explored.
 
-
 The best models for each of the experiments are available on zenodo at 
 
 https://doi.org/10.5281/zenodo.4814944
@@ -99,4 +100,8 @@ https://doi.org/10.5281/zenodo.4814944
 These can be used for transferring learning to different applications. The input data for human and yeast data is also available on zenodo. Parameters yielding the best results are specified in the paper and in the input files.
 
 ### Website:
-Interactive visualizations of results can be constructed by running the file update_everything_webiste.py in the websites folder after specifying paths to learned community results. 
+Interactive visualizations of results can be constructed by running the file update_everything_webiste.py in the websites folder after specifying paths to learned community results. Results on human protein interaction network are visualized here: https://sites.google.com/view/supercomplex/super-complex-v3-0?authuser=0
+
+### Paper:
+https://www.biorxiv.org/content/10.1101/2021.06.22.449395v1
+
