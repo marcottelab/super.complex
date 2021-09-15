@@ -3,7 +3,9 @@
 ## Installation:
 Requires python3  
 Requirements installation:
+```
 python3 -m pip install -r requirements_py3.txt --user
+```
 Works for Python version < 3.8
 
 Note: For faster installation, if you don't plan to use neural networks, you can skip tensorflow installation, by removing the line with tensorflow from the file requirements_py3.txt (None of the experiments provided below need neural networks)
@@ -16,11 +18,14 @@ Note: For faster installation, if you don't plan to use neural networks, you can
 5. for yeast, for training on MIPS complexes and testing on TAP, use input_yeast_mips.yaml
 
 ## Tests:
+
+```
 pip install -U pytest
 
 cd /path_to_super.complex_directory
 
 pytest
+```
 
 ## Instructions:
 To run the pipeline on a new network, construct a similar input file (as input_toy.yaml) containing the required inputs.
