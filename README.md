@@ -105,7 +105,7 @@ https://doi.org/10.5281/zenodo.4814944
 These can be used for transferring learning to different applications. The input data for human and yeast data is also available on zenodo. Parameters yielding the best results are specified in the paper and in the input files.
 
 ### Website:
-Interactive visualizations of results can be constructed by running the file update_everything_webiste.py in the websites folder after specifying paths to learned community results. Results on human protein interaction network are visualized here: https://sites.google.com/view/supercomplex/super-complex-v3-0?authuser=0
+Interactive visualizations of results can be constructed by running the file update_everything_webiste.py in the websites folder after specifying paths to learned community results. Results on human protein interaction network are visualized here: https://sites.google.com/view/supercomplex/super-complex-v3-0
 
 ### Paper:
 https://www.biorxiv.org/content/10.1101/2021.06.22.449395v1
