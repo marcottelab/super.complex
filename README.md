@@ -1,4 +1,7 @@
 # Super.Complex
+Super.Complex is a supervised machine learning algorithm for community detection in networks. It learns information from known communities and uses this information to find new communities on the network.
+
+Please refer [our paper](https://doi.org/10.1101/2021.06.22.449395) for more details.
 
 ## Installation:
 Requires python3  
@@ -28,7 +31,7 @@ pytest
 ```
 
 ## Instructions:
-To run the pipeline on a new network, construct a similar input file (as input_toy.yaml) containing the required inputs.
+To run the pipeline on a new network, construct a similar input file (as input_toy.yaml) specifying where to find the required inputs - the network and known communities, and configuration options for the algorithm.
 
 1. Specify input options relating to the network: 
 Set options dir_nm - directory containing the network, netf_nm - file name of the network
@@ -108,5 +111,5 @@ These can be used for transferring learning to different applications. The input
 Interactive visualizations of results can be constructed by running the file update_everything_webiste.py in the websites folder after specifying paths to learned community results. Results on human protein interaction network are visualized here: https://sites.google.com/view/supercomplex/super-complex-v3-0
 
 ### Paper:
-https://www.biorxiv.org/content/10.1101/2021.06.22.449395v1
+Palukuri, Meghana Venkata, and Edward M. Marcotte. "Super. Complex: A supervised machine learning pipeline for molecular complex detection in protein-interaction networks." bioRxiv (2021). https://doi.org/10.1101/2021.06.22.449395
 
