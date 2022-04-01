@@ -1,4 +1,7 @@
 # Super.Complex
+Super.Complex is a supervised machine learning algorithm for community detection in networks. It learns information from known communities and uses this information to find new communities on the network.
+
+Please refer [our paper](https://doi.org/10.1101/2021.06.22.449395) for more details.
 
 ## Installation:
 Requires python3  
@@ -28,7 +31,7 @@ pytest
 ```
 
 ## Instructions:
-To run the pipeline on a new network, construct a similar input file (as input_toy.yaml) containing the required inputs.
+To run the pipeline on a new network, construct a similar input file (as input_toy.yaml) specifying where to find the required inputs - the network and known communities, and configuration options for the algorithm.
 
 1. Specify input options relating to the network: 
 Set options dir_nm - directory containing the network, netf_nm - file name of the network
@@ -98,15 +101,16 @@ Add the desired arguments with each of the commands directly on the terminal. If
 
 For further cross validation in each of the methods, in the bash script, loop through different values for explore_prob and prob_metropolis if using metropolis, and T0 and alpha if using iterative simulated annealing. We recommend setting max_size_thres based on domain knowledge of the network, to specify the maximum number of steps the algorithm is allowed to take while growing the community. Alternately, performing a box plot of the sizes of known communities and choosing a large size that is not an outlier works well for this. We recommend setting the use_all_neigs to 1, so that all neighbors of a node are explored before deciding which to choose to grow the community. If this is not efficient enough for your compute system, you can set the parameters thres_neig, min_thres_neig_sorted and perc to limit the number of neighbors explored.
 
-The best models for each of the experiments are available on zenodo at 
+### Data and models:
+The input data for human and yeast data is available on zenodo. The best models for each of the experiments are available on zenodo at 
 
 https://doi.org/10.5281/zenodo.4814944
 
-These can be used for transferring learning to different applications. The input data for human and yeast data is also available on zenodo. Parameters yielding the best results are specified in the paper and in the input files.
+These can also be used for transferring learning to different applications. Parameters yielding the best results in our experiments are specified in the paper and in the input files.
 
 ### Website:
 Interactive visualizations of results can be constructed by running the file update_everything_webiste.py in the websites folder after specifying paths to learned community results. Results on human protein interaction network are visualized here: https://sites.google.com/view/supercomplex/super-complex-v3-0
 
 ### Paper:
-https://www.biorxiv.org/content/10.1101/2021.06.22.449395v1
+Palukuri, Meghana Venkata, and Edward M. Marcotte. "Super. Complex: A supervised machine learning pipeline for molecular complex detection in protein-interaction networks." bioRxiv (2021). https://doi.org/10.1101/2021.06.22.449395
 
