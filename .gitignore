@@ -15,7 +15,6 @@ convert_ids*
 TPOT/old_tmp/
 yeast/results*
 yeast/dip_res/results_*
-website/
 yeast/*
 tests/.py*
 html*
