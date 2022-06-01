@@ -3,10 +3,8 @@
 sup_graph.o*
 *.pyc
 humap2/
-humap/
 toy_network/
 toy_network_old/
-*.xlsx
 example*
 test.py
 TPOT/tpot_temp*
