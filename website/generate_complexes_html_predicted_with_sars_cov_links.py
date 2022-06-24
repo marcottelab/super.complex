@@ -10,9 +10,20 @@ from os import mkdir as os_mkdir, path as os_path,remove as os_remove
 from distutils.dir_util import copy_tree
 from shutil import copyfile,rmtree
 import pandas as pd
+import argparse
+
+parser = argparse.ArgumentParser("Input parameters")
+parser.add_argument("--sars_cov2_map", default="../convert_ids/SARS_COV2_Map.xlsx", help="Input parameters file name")
+parser.add_argument("--name2annot_file", default="../convert_ids/name2annot_full_humap_from_gene_names.pkl", help="Input parameters file name")
+parser.add_argument("--results_folder", default="../humap/results_73_neg_unif_10xisa_e0.01_T01.75_a0.005_qi_o0.375", help="Input parameters file name")
+parser.add_argument("--id2name_file_pkl", default="../convert_ids/humap_gene_id_name_map_updated.pkl", help="Input parameters file name")
+parser.add_argument("--prot2url_file", default="../convert_ids/name2uniprotURL_full_humap_from_gene_names.pkl", help="Input parameters file name")
+parser.add_argument("--comp_num2name", default="/res_pred_complex_num2name.pkl", help="Input parameters file name")
 
 
-df = pd.read_excel('../convert_ids/SARS_COV2_Map.xlsx',header=1)
+args = parser.parse_args()
+
+df = pd.read_excel(args.sars_cov2_map,header=1)
 
 edges = list(zip(df['Bait'],df['PreyGene'],df['MIST']))
 
@@ -30,9 +41,7 @@ for edge in edges:
         prot2sars_nodes[prot].append(sars)
 
 
-
-
-with open('../convert_ids/name2annot_full_humap_from_gene_names.pkl','rb') as f:
+with open(args.name2annot_file,'rb') as f:
     name2annot = pickle.load(f)
 
 
@@ -158,14 +167,15 @@ cy.on('tap', 'node', function(){
 
     </script>
 '''
-results_folder = "../humap/results_73_neg_unif_10xisa_e0.01_T01.75_a0.005_qi_o0.375"        
+results_folder = args.results_folder
+#results_folder = "../humap/results_73_neg_unif_10xisa_e0.01_T01.75_a0.005_qi_o0.375"        
 results_file = results_folder + "/res_pred_names.out"
 results_file_edges = results_folder + "/res_pred_edges_names.out"
 #results_file = "../humap/results_73_neg_unif_10xisa_e0.01_T01.75_a0.005_best/res_pred_names.out"
 
 #results_file = "../humap/results_73_neg_unif_10xisa_e0.01_T01.75_a0.005_o0.25/res_pred_names.out"
 
-with open(results_folder+'/res_pred_complex_num2name.pkl','rb') as f:
+with open(results_folder+args.comp_num2name,'rb') as f:
     comp_num2name = pickle.load(f)
     
 with open(results_file) as f:
@@ -177,13 +187,13 @@ with open(results_file_edges) as f:
 with open("../convert_ids/covid_interactors.txt") as f:
     covid_interactors = set([elt.rstrip() for elt in f.readlines()])
     
-with open("../convert_ids/name2uniprotURL_full_humap_from_gene_names.pkl",'rb') as f:
+with open(args.prot2url_file,'rb') as f:
     prot2url = pickle.load(f)
     
 complexes = complexes_nodes.split("\n")
 complexes_edges = complexes_edgesF.split("\n\n")[:-1]
 
-with open('../convert_ids/humap_gene_id_name_map_updated.pkl','rb') as f:
+with open(args.id2name_file_pkl,'rb') as f:
     id2name=pickle.load(f)
 # Update gene names if any
 

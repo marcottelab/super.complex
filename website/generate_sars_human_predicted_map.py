@@ -6,15 +6,23 @@ Created on Mon Mar  1 11:18:26 2021
 """
 
 import pandas as pd
+import argparse
+import pickle
 
-df = pd.read_excel('../convert_ids/SARS_COV2_Map.xlsx',header=1)
+parser = argparse.ArgumentParser("Input parameters")
+parser.add_argument("--sars_cov2_map", default="../convert_ids/SARS_COV2_Map.xlsx", help="Input parameters file name")
+parser.add_argument("--name2annot_file", default="../convert_ids/name2annot_full_humap_from_gene_names.pkl", help="Input parameters file name")
+parser.add_argument("--prot2url_file", default="../convert_ids/name2uniprotURL_full_humap_from_gene_names.pkl", help="Input parameters file name")
+
+args = parser.parse_args()
+
+df = pd.read_excel(args.sars_cov2_map,header=1)
 
 edges = list(zip(df['Bait'],df['PreyGene'],df['MIST']))
 
 nodes = set(list(df['Bait'])+list(df['PreyGene']))
 
-import pickle
-with open('../convert_ids/name2annot_full_humap_from_gene_names.pkl','rb') as f:
+with open(args.name2annot_file,'rb') as f:
     name2annot = pickle.load(f)
     
     
@@ -64,7 +72,7 @@ cy.on('tap', 'node', function(){
     </script>
 '''
     
-with open("../convert_ids/name2uniprotURL_full_humap_from_gene_names.pkl",'rb') as f:
+with open(args.prot2url_file,'rb') as f:
     prot2url = pickle.load(f)
     
 

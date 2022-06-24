@@ -10,12 +10,17 @@ from argparse import ArgumentParser as argparse_ArgumentParser
 
 parser = argparse_ArgumentParser("Input parameters")
 parser.add_argument("--suffix_corum", default='', help="original")
+parser.add_argument("--name2annot_file", default="../convert_ids/name2annot_full_humap_from_gene_names.pkl", help="Input parameters file name")
+parser.add_argument("--prot2url_file", default="../convert_ids/name2uniprotURL_full_humap_from_gene_names.pkl", help="Input parameters file name")
+parser.add_argument("--dir", default='../humap/', help="Input parameters file name")
+
+
 args = parser.parse_args()
     
 ##suffix_corum = ''
 #suffix_corum = 'original'
 suffix_corum=args.suffix_corum
-with open('../convert_ids/name2annot_full_humap_from_gene_names.pkl','rb') as f:
+with open(args.name2annot_file,'rb') as f:
     name2annot = pickle.load(f)
     
     
@@ -112,23 +117,23 @@ cy.on('tap', 'node', function(){
     </script>
 '''
 
-with open('../humap/corum_names' + suffix_corum + '.txt') as f:
+with open(args.dir + 'corum_names' + suffix_corum + '.txt') as f:
     complexes_nodes = f.read()
     
-with open('../humap/corum_edges_humap_names' + suffix_corum + '.txt') as f:
+with open(args.dir + 'corum_edges_humap_names' + suffix_corum + '.txt') as f:
     complexes_edgesF = f.read()
     
 with open("../convert_ids/covid_interactors.txt") as f:
     covid_interactors = set([elt.rstrip() for elt in f.readlines()])
     
-with open("../convert_ids/name2uniprotURL_full_humap_from_gene_names.pkl",'rb') as f:
+with open(args.prot2url_file,'rb') as f:
     prot2url = pickle.load(f)
     
 if suffix_corum != 'original':
-    with open('../humap/cleaned_corum_complex_num2name.pkl','rb') as f:
+    with open(args.dir + 'cleaned_corum_complex_num2name.pkl','rb') as f:
         comp_num2name_corum = pickle.load(f)           
 else:
-    with open('../humap/original_corum_complex_num2name.pkl','rb') as f:
+    with open(args.dir + 'original_corum_complex_num2name.pkl','rb') as f:
         comp_num2name_corum = pickle.load(f)     
     
 complexes = complexes_nodes.split("\n")
@@ -216,7 +221,10 @@ for comp,comp_edges in zip(complexes,complexes_edges):
             res += ",\n"
         else:
             res += "]}"
-    density = float(2*nEdges_tot)/(nNodes*(nNodes-1))
+    try:
+        density = float(2*nEdges_tot)/(nNodes*(nNodes-1))
+    except:
+        density = 0
     if (density > 0.8):
         post = circle_post
     else:

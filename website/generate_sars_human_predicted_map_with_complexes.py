@@ -6,8 +6,17 @@ Created on Mon Mar  1 11:18:26 2021
 """
 
 import pandas as pd
+import argparse
+parser = argparse.ArgumentParser("Input parameters")
+parser.add_argument("--sars_cov2_map", default="../convert_ids/SARS_COV2_Map.xlsx", help="Input parameters file name")
+parser.add_argument("--results_folder", default="../humap/results_73_neg_unif_10xisa_e0.01_T01.75_a0.005_qi_o0.375", help="Input parameters file name")
+parser.add_argument("--name2annot_file", default="../convert_ids/name2annot_full_humap_from_gene_names.pkl", help="Input parameters file name")
+parser.add_argument("--prot2url_file", default="../convert_ids/name2uniprotURL_full_humap_from_gene_names.pkl", help="Input parameters file name")
+parser.add_argument("--prot2comp_cov_file_name", default="/res_pred_prot2comp_covid.out", help="Input parameters file name")
 
-df = pd.read_excel('../convert_ids/SARS_COV2_Map.xlsx',header=1)
+args = parser.parse_args()
+
+df = pd.read_excel(args.sars_cov2_map,header=1)
 
 edges = list(zip(df['Bait'],df['PreyGene'],df['MIST']))
 
@@ -15,8 +24,9 @@ nodes_sars = set(list(df['Bait']))
 
 nodes_human_prots = set(list(df['PreyGene']))
 
-results_folder = "../humap/results_73_neg_unif_10xisa_e0.01_T01.75_a0.005_qi_o0.375_reproduce"        
-prot2comp_cov_file = results_folder + '/res_pred_prot2comp_covid.out'
+results_folder = args.results_folder      
+prot2comp_cov_file = results_folder + args.prot2comp_cov_file_name
+
 # generate protein to complexes edges
 with open(prot2comp_cov_file) as f:
     lines = [line.rstrip().split() for line in f.readlines()]
@@ -34,7 +44,7 @@ for line in lines:
 nodes_comp = set(nodes_comp)
 
 import pickle
-with open('../convert_ids/name2annot_full_humap_from_gene_names.pkl','rb') as f:
+with open(args.name2annot_file,'rb') as f:
     name2annot = pickle.load(f)
     
     
@@ -101,7 +111,7 @@ cy.on('tap', 'node', function(){
     </script>
 '''
     
-with open("../convert_ids/name2uniprotURL_full_humap_from_gene_names.pkl",'rb') as f:
+with open(args.prot2url_file,'rb') as f:
     prot2url = pickle.load(f)
     
 

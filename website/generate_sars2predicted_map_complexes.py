@@ -3,8 +3,21 @@ from os import mkdir as os_mkdir, path as os_path,remove as os_remove
 from distutils.dir_util import copy_tree
 from shutil import copyfile,rmtree
 import pandas as pd
+import argparse
 
-df = pd.read_excel('../convert_ids/SARS_COV2_Map.xlsx',header=1)
+parser = argparse.ArgumentParser("Input parameters")
+parser.add_argument("--sars_cov2_map", default="../convert_ids/SARS_COV2_Map.xlsx", help="Input parameters file name")
+parser.add_argument("--results_folder", default="../humap/results_73_neg_unif_10xisa_e0.01_T01.75_a0.005_qi_o0.375", help="Input parameters file name")
+parser.add_argument("--name2annot_file", default="../convert_ids/name2annot_full_humap_from_gene_names.pkl", help="Input parameters file name")
+parser.add_argument("--name2annot_covid_file", default='../convert_ids/name2annot_covid_interactors_from_gene_names.pkl', help="Input parameters file name")
+parser.add_argument("--prot2url_file", default="../convert_ids/name2uniprotURL_full_humap_from_gene_names.pkl", help="Input parameters file name")
+parser.add_argument("--prot2url_covid_file", default="../convert_ids/name2uniprotURL_covid_interactors_from_gene_names.pkl", help="Input parameters file name")
+parser.add_argument("--prot2comp_cov_file_name", default="/res_pred_prot2comp_covid.out", help="Input parameters file name")
+
+args = parser.parse_args()
+
+
+df = pd.read_excel(args.sars_cov2_map,header=1)
 
 edges = list(zip(df['Bait'],df['PreyGene'],df['MIST']))
 nodes_sars = set(list(df['Bait']))
@@ -25,10 +38,9 @@ for edge in edges:
         sars2prot_nodes[sars].append(prot)
     sars2prot_edges[sars][prot] = wt         # if duplicates exist, last value will be used
         
-        
+results_folder = args.results_folder      
 # prot to comp
-results_folder = "../humap/results_73_neg_unif_10xisa_e0.01_T01.75_a0.005_qi_o0.375"        
-results_file = results_folder + "/res_pred_prot2comp_covid.out"
+results_file = results_folder + args.prot2comp_cov_file_name  
 
 with open(results_file) as f:
     prot2comp = dict([(line2[0].rstrip(' '), line2[1].split()) for line2 in (line.rstrip().split(':') for line in f.readlines()) if line2])
@@ -127,10 +139,7 @@ cy.on('tap', 'node', function(){
   }
 });      
     </script>
-'''
-    
-
-    
+''' 
 
 edge_nm = ""
 num = 0
